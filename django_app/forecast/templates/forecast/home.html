@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Price Forecasting</title>
+
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            margin: 0;
+            padding: 40px 20px;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #1d4ed8;
+        }
+
+        form {
+            margin: 25px 0;
+        }
+
+        label, select, button {
+            display: block;
+            margin-top: 12px;
+        }
+
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        select {
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+        }
+
+        button {
+            background: #1d4ed8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1e40af;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #eff6ff;
+        }
+
+        .error {
+            color: #b91c1c;
+            margin-top: 20px;
+        }
+
+        .note {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Fix chart container sizing */
+        .chart-container {
+            position: relative;
+            display: block;
+            width: 100%;
+            min-width: 0;
+            height: 380px;
+            margin: 25px 0;
+        }
+
+        .chart-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .empty-message {
+            color: #b91c1c;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            .container {
+                padding: 18px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Monthly Price Forecasting</h1>
+    <p>Generate monthly price forecasts using our forecasting API.</p>
+
+    <!-- Forecast form -->
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="months">Number of months to forecast:</label>
+
+        <select name="months" id="months">
+            {% for month in "123456789012345678901234"|make_list %}
+                <option value="{{ forloop.counter }}"
+                    {% if forecast_data and forecast_data.forecast|length == forloop.counter %}
+                        selected
+                    {% elif not forecast_data and forloop.counter == 3 %}
+                        selected
+                    {% endif %}>
+                    {{ forloop.counter }} month{{ forloop.counter|pluralize }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Generate Forecast</button>
+    </form>
+
+    {% if error_message %}
+        <p class="error">{{ error_message }}</p>
+    {% endif %}
+
+    <!-- Forecast results -->
+    {% if forecast_data %}
+        <hr>
+
+        <h2>Forecast Results</h2>
+
+        <p>
+            Latest date in dataset:
+            <strong>{{ forecast_data.latest_data_date }}</strong>
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Forecast Date</th>
+                    <th>Predicted Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in forecast_data.forecast %}
+                    <tr>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.predicted_price|floatformat:2 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Forecast Trend</h2>
+        <p>Predicted prices for your selected forecast period.</p>
+
+        <div class="chart-container">
+            <canvas id="forecastChart"></canvas>
+        </div>
+
+        {{ forecast_data.forecast|json_script:"forecast-data" }}
+
+        <p class="note">
+            These forecasts use historical data and are not guaranteed future prices.
+        </p>
+    {% endif %}
+
+    <!-- Model evaluation graph and table -->
+    <hr>
+
+    <h2>Model Evaluation: Actual vs Predicted Prices</h2>
+
+    <p>
+        This graph compares actual historical prices with predictions
+        made using a model trained on earlier data. The evaluation period
+        is October 2024 to September 2025.
+    </p>
+
+    {% if evaluation_data %}
+
+        <div class="chart-container">
+            <canvas id="evaluationChart"></canvas>
+        </div>
+
+        {{ evaluation_data|json_script:"evaluation-data" }}
+
+        <h3>Evaluation Results</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Actual Price</th>
+                    <th>Predicted Price</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in evaluation_data %}
+                    <tr>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.actual_price|floatformat:2 }}</td>
+                        <td>{{ item.predicted_price|floatformat:2 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <p class="note">
+            Evaluation results are not available. Check that
+            evaluation_results.csv exists in the main project folder.
+        </p>
+
+    {% endif %}
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Check whether Chart.js loaded successfully
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js failed to load.");
+        return;
+    }
+
+    // Chart 1: Future price forecast
+    const forecastElement = document.getElementById("forecast-data");
+    const forecastCanvas = document.getElementById("forecastChart");
+
+    if (forecastElement && forecastCanvas) {
+        try {
+            const forecastRows = JSON.parse(forecastElement.textContent);
+
+            new Chart(forecastCanvas, {
+                type: "line",
+                data: {
+                    labels: forecastRows.map(item => item.date),
+                    datasets: [{
+                        label: "Predicted Price",
+                        data: forecastRows.map(
+                            item => Number(item.predicted_price)
+                        ),
+                        borderColor: "#1d4ed8",
+                        backgroundColor: "rgba(29, 78, 216, 0.15)",
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "top"
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Forecast Date"
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: "Predicted Price"
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Forecast chart error:", error);
+            forecastCanvas.insertAdjacentHTML(
+                "afterend",
+                '<p class="empty-message">Unable to display the forecast chart.</p>'
+            );
+        }
+    }
+
+    // Chart 2: Actual prices compared with model predictions
+    const evaluationElement = document.getElementById("evaluation-data");
+    const evaluationCanvas = document.getElementById("evaluationChart");
+
+    if (evaluationElement && evaluationCanvas) {
+        try {
+            const evaluationRows = JSON.parse(
+                evaluationElement.textContent
+            );
+
+            new Chart(evaluationCanvas, {
+                type: "line",
+                data: {
+                    labels: evaluationRows.map(item => item.date),
+                    datasets: [
+                        {
+                            label: "Actual Price",
+                            data: evaluationRows.map(
+                                item => Number(item.actual_price)
+                            ),
+                            borderColor: "#16a34a",
+                            backgroundColor: "rgba(22, 163, 74, 0.10)",
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            tension: 0.15
+                        },
+                        {
+                            label: "Predicted Price",
+                            data: evaluationRows.map(
+                                item => Number(item.predicted_price)
+                            ),
+                            borderColor: "#dc2626",
+                            backgroundColor: "rgba(220, 38, 38, 0.10)",
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            tension: 0.15
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: "top"
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Month"
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: "Price"
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Evaluation chart error:", error);
+            evaluationCanvas.insertAdjacentHTML(
+                "afterend",
+                '<p class="empty-message">Unable to display the evaluation chart.</p>'
+            );
+        }
+    }
+
+});
+</script>
+
+</body>
+</html>

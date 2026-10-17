@@ -1,0 +1,8 @@
+django_env/
+django_app/.venv/
+django_app/.idea/
+.idea/
+__pycache__/
+*.py[cod]
+.env
+db.sqlite3
