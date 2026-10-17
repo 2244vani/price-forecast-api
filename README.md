@@ -1,125 +1,107 @@
+
 Monthly Price Forecasting System
+A machine-learning project that forecasts future monthly prices from historical data. The project combines a Python forecasting model, a FastAPI REST API, and a Django dashboard, deployed on Render.
 
-A machine-learning project that forecasts future monthly prices using historical data, with a FastAPI backend and a Django dashboard.
-
-Project Description
-
-The Monthly Price Forecasting System demonstrates the application of machine learning, data processing, REST API development, and web deployment. It uses historical price data to generate future monthly forecasts and makes the results accessible through a web dashboard and API.
-
-Live Application
-
-Dashboard: https://monthly-price-forecast-dashboard.onrender.com
-API Documentation: https://price-forecast-api-3xtd.onrender.com/docs
-Forecast Endpoint: https://price-forecast-api-3xtd.onrender.com/forecast?months=6
+Live Demo
+Live Dashboard: Open Monthly Price Forecast Dashboard
+API Documentation: Explore the FastAPI Swagger UI
+Example Forecast Request: Forecast the next 6 months
+Project Overview
+The goal of this project is to demonstrate an end-to-end machine-learning application: processing historical price data, generating forecasts, exposing predictions through an API, and presenting results in a web dashboard.
 
 Key Features
-
 Historical price data processing
-
 Monthly price forecasting
-
-Baseline model implementation
-
-Model evaluation and comparison
-
+Baseline forecasting model
+Model evaluation and comparison experiments
 REST API built with FastAPI
+Web dashboard built with Django
+Deployment of separate services on Render
+Technology Stack
+Technology	Purpose
+Python	Core programming language
+Pandas	Data processing and analysis
+Scikit-learn	Machine-learning tools and evaluation
+Joblib	Saving and loading the model
+FastAPI	Forecasting REST API
+Django	Web dashboard
+Requests	Calling the API from the dashboard
+Git and GitHub	Version control and source code hosting
+Render	Cloud deployment
+How the System Works
+Historical Price Data
+        |
+        v
+Data Processing and Model Experiments
+        |
+        v
+Forecasting Model
+        |
+        v
+FastAPI REST API
+        |
+        v
+Django Dashboard
+        |
+        v
+Forecast Results
+The FastAPI service returns forecast data. The Django dashboard requests the API and presents the results to the user.
 
-Django-based dashboard
-
-Cloud deployment using Render
-
-Technologies
-
-Python · Pandas · Scikit-learn · Joblib · FastAPI · Django · REST API · Git · GitHub · Render
-
-Machine Learning Concepts
-
+Machine-Learning Concepts
 Time-Series Forecasting
-
-Time-series forecasting uses historical observations collected over time to estimate future values. It is commonly used in sales, demand, inventory, and price analysis.
+Time-series forecasting uses observations collected over time to estimate future values. It can be applied to areas such as sales, demand, inventory, and price analysis.
 
 Naive Forecasting
+The current deployed model uses Naive Forecasting, a baseline approach that predicts the next period using the latest observed value.
 
-The current deployed model uses Naive Forecasting, a baseline method that predicts the next period's value using the latest observed value.
+Formula:
 
-Forecast = Latest observed value
+Forecast for the next period = Latest observed value
 
-For example, if the latest observed price is ₹15,750, the model predicts ₹15,750 for the next month. Consequently, forecasts remain constant unless the latest observed value changes.
+For example, if the latest observed price is ₹15,750, the model predicts ₹15,750 for the following month. This produces a flat forecast and provides a baseline for comparison with more advanced approaches.
 
 Model Evaluation
+Forecasting approaches can be evaluated by comparing predictions with actual values. Common metrics include:
 
-Forecasting models can be assessed using metrics such as:
+MAE — Mean Absolute Error: Average absolute prediction error.
+MSE — Mean Squared Error: Average squared prediction error.
+RMSE — Root Mean Squared Error: Square root of MSE, expressed in the target variable's units.
+MAPE — Mean Absolute Percentage Error: Average absolute percentage error; use carefully when actual values are zero or close to zero.
+Time-series evaluation should respect chronological order rather than randomly shuffling observations.
 
-MAE: Mean Absolute Error
+Repository Contents
+The repository includes Python scripts and notebooks for data inspection, model comparison, evaluation, and seasonality checks, along with the Django application.
 
-MSE: Mean Squared Error
-
-RMSE: Root Mean Squared Error
-
-MAPE: Mean Absolute Percentage Error, when appropriate
-
-Chronological validation is important when evaluating time-series forecasting models.
-
-System Architecture
-
-Historical Data → Data Processing → Forecasting Model → FastAPI → Django Dashboard → Forecast Results
-
-The FastAPI service generates forecast results. The Django dashboard communicates with the API and presents the results to users.
-
-Project Objectives
-
-Apply machine-learning concepts to historical price data.
-
-Develop a baseline forecasting solution.
-
-Understand model evaluation and comparison.
-
-Build and integrate REST API services.
-
-Develop a web-based dashboard.
-
-Deploy a Python application to the cloud.
+File or folder	Purpose
+django_app/	Django dashboard application
+compare_models.py	Model comparison experiments
+evaluate_model.py	Model evaluation
+check_seasonality.py	Seasonality analysis
+inspect_prices.py	Historical data inspection
+dashboard.py	Dashboard-related Python script
+colab_Way2.ipynb	Notebook for experimentation
+evaluation_results.csv	Saved evaluation results, if generated by the workflow
+README.md	Project documentation
+The exact model training and API files may also be present in the repository.
 
 Current Limitations
-
-The deployed baseline model repeats the latest observed price.
-
-It does not independently capture price trends or seasonality.
-
-Forecast quality depends on historical data and model selection.
-
+The deployed Naive Forecasting model repeats the latest observed price.
+It does not independently learn trends or seasonal patterns.
+Forecast quality depends on the historical data and chosen model.
 Forecasts are estimates, not guarantees of future prices.
-
-Future Enhancements
-
-Compare forecasting algorithms such as Linear Regression and time-series models.
-
-Improve chronological model validation.
-
-Add forecast-versus-actual visualizations.
-
-Include prediction intervals where appropriate.
-
-Improve testing, input validation, and dashboard functionality.
-
+Future Improvements
+Compare additional forecasting algorithms, including time-series methods.
+Improve chronological and rolling-origin evaluation.
+Add forecast-versus-actual charts.
+Explore prediction intervals where appropriate.
+Improve automated testing and API input validation.
+Enhance dashboard usability and monitoring.
 Learning Outcomes
-
 This project provided practical experience with:
 
-Python-based data analysis
-
-Machine-learning experimentation
-
-Forecast evaluation concepts
-
-FastAPI REST API development
-
-Django web application development
-
-API integration
-
-GitHub version control
-
-Cloud deployment
-
-Author
+Historical data processing using Pandas
+Forecasting-model experimentation and evaluation
+Building REST APIs with FastAPI
+Connecting a Django application to an API
+Version control with Git and GitHub
+Deploying web services using Render
