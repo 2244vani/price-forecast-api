@@ -16,7 +16,7 @@ def home(request):
 
         try:
             response = requests.get(
-                "http://127.0.0.1:8000/forecast",
+                "https://price-forecast-api-3xtd.onrender.com/forecast",,
                 params={"months": months},
                 timeout=10,
             )
